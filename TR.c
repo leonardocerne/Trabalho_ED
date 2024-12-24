@@ -50,6 +50,21 @@ TABM *arq2TABM(char *arq, int t){
     return resp;
 }
 
+TR copia_chaves(TR aux, TR T) {
+    aux.id = T.id;
+    strcpy(aux.bairro, T.bairro);
+    strcpy(aux.tipo, T.tipo);
+    strcpy(aux.rua, T.rua);
+    aux.numero = T.numero;
+    aux.preco_total = T.preco_total;
+    aux.preco_m2 = T.preco_m2;
+    strcpy(aux.descricao, T.descricao);
+    aux.cep = T.cep;
+    strcpy(aux.latitude, T.latitude);
+    strcpy(aux.longitude, T.longitude);
+    return aux;
+}
+
 void TABM_imprime_chaves(char *raiz, int t){
     TABM *a = arq2TABM(raiz, t);
     if(!a->folha){
@@ -74,6 +89,15 @@ char *TABM_busca(char *arq, long id, int t){
     if(a->folha) return "NULL";
     if(a->chaves[i].id == id) i++;
     return TABM_busca(a->filhos[i], id, t);
+}
+
+void copia_no(TABM *x, char *arq, int t){
+    FILE *fp = fopen(arq, "wb");
+    if(!fp) exit(1);
+    TABM aux;
+    copia(x, &aux, t);
+    fwrite(&aux, sizeof(TABM), 1, fp);
+    fclose(fp);
 }
 
 TABM *divisao(TABM *x, int i, TABM *y, int t, int *cont){
@@ -102,14 +126,102 @@ TABM *divisao(TABM *x, int i, TABM *y, int t, int *cont){
     for(j = x->nchaves; j >= i; j--) x->chaves[j] = x->chaves[j-1];
     x->chaves[i-1] = y->chaves[t-1];
     x->nchaves++;
-    FILE *fp = fopen(z_nome_arq, "wb");
-    TABM zcopia;
-    copia(z, &zcopia, t);
-    fwrite(&zcopia, sizeof(TABM), 1, fp);
-    fclose(fp);
+    copia_no(x, z_nome_arq, t);
     free(z_nome_arq);
     free(z);
     return x;
+}
+
+void TABM_escreve(char* arquivo, TABM* no, int t) {
+    FILE* fp = fopen(arquivo, "wb");
+    if (!fp) exit(1); // Saia do programa em caso de erro na abertura
+    fwrite(no, sizeof(TABM), 1, fp);
+    fclose(fp);
+}
+
+TABM *insere_nao_completo(TABM *x, TR *r, int t, int *cont){
+    int i = x->nchaves-1;
+    if(x->folha){
+        while((i>=0) && (r->id < x->chaves[i].id)){
+            x->chaves[i+1] = x->chaves[i];
+            i--;
+        }
+        x->chaves[i+1] = *r;
+        x->nchaves++;
+        return x;
+    }
+    while((i>=0) && (r->id < x->chaves[i].id)) i--;
+    i++;
+    TABM *z = arq2TABM(x->filhos[i], t);
+    if(z->nchaves == ((2*t)-1)){
+        x = divisao(x, (i+1), z, t, cont);
+        if(r->id > x->chaves[i].id) i++;
+        copia_no(z, x->filhos[i], t);
+    }
+    z = arq2TABM(x->filhos[i], t);
+    z = insere_nao_completo(z, r, t, cont);
+    copia_no(z, x->filhos[i], t);
+    free(z);
+    return x;
+}
+
+
+char* TABM_insere(TR *residencia, int t, char **raiz, int *cont) {
+    if (!*raiz || !arq2TABM(*raiz, t)) {
+        TABM_cria(t, cont, raiz);
+        TABM *T = TABM_cria_no(t);
+        T->chaves[0] = *residencia;
+        T->nchaves = 1;
+        TABM aux;
+        copia(T, &aux, t);
+        TABM_escreve(*raiz, &aux, t);
+        TABM_libera_no(T);
+        return *raiz;
+    }
+
+    char ver[20];
+    strcpy(ver, TABM_busca(*raiz, residencia->id, t));
+    if (strcmp(ver, "NULL") != 0) {
+        TABM *a = arq2TABM(ver, t);
+        int i;
+        for (i = 0; a->chaves[i].id != residencia->id; i++);
+        a->chaves[i] = copia_chaves(a->chaves[i], *residencia);
+        TABM aux;
+        copia(a, &aux, t);
+        TABM_escreve(ver, &aux, t);
+        TABM_libera_no(a);
+        return *raiz;
+    }
+    TABM *T = arq2TABM(*raiz, t);
+
+    if (T->nchaves == (2 * t) - 1) {
+        char *S_arq = (char *)malloc(sizeof(char) * 30);
+        TABM_cria(t, cont, &S_arq);
+        TABM *S = arq2TABM(S_arq, t);
+        S->nchaves = 0;
+        S->folha = 0;
+        strcpy(S->filhos[0], *raiz);
+        S = divisao(S, 1, T, t, cont);
+        TABM aux_3;
+        copia(T, &aux_3, t);
+        TABM_escreve(*raiz, &aux_3, t);
+        S = insere_nao_completo(S, residencia, t, cont);
+        TABM aux;
+        copia(S, &aux, t);
+        TABM_escreve(S_arq, &aux, t);
+
+        TABM_libera_no(T);
+        TABM_libera_no(S);
+        strcpy(*raiz, S_arq);
+        free(S_arq);
+        return *raiz;
+    }
+    T = insere_nao_completo(T, residencia, t, cont);
+    TABM aux;
+    copia(T, &aux, t);
+    TABM_escreve(*raiz, &aux, t);
+    TABM_libera_no(T);
+    return *raiz;
 }
 
 TLSE_TR *TLSE_TR_insere(TLSE_TR *l, TR *r){

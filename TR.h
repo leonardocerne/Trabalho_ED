@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define MAX_T 50
+
 typedef struct tiporesidencia{
     long int id;
     char bairro[30];
@@ -20,3 +22,11 @@ typedef struct listatr{
     TR *info;
     struct listatr *prox;
 }TLSE_TR;
+
+typedef struct arvbm{
+    int folha;
+    int nchaves;
+    char prox[30];
+    TR *chaves;
+    char **filhos;
+}TABM;

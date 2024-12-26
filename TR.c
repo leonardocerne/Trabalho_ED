@@ -50,7 +50,7 @@ TABM *arq2TABM(char *arq, int t){
     return resp;
 }
 
-TR copia_chaves(TR aux, TR T) {
+TR TRtoTR(TR aux, TR T) {
     aux.id = T.id;
     strcpy(aux.bairro, T.bairro);
     strcpy(aux.tipo, T.tipo);
@@ -77,6 +77,7 @@ void TABM_imprime_chaves(char *raiz, int t){
         for(i = 0; i < a->nchaves; i++) printf("%ld\n", a->chaves[i].id);
         printf("\n");
         a = arq2TABM(a->prox, t);
+        c++;
     }
     printf("\n");
 }
@@ -185,7 +186,7 @@ char* TABM_insere(TR *residencia, int t, char **raiz, int *cont) {
         TABM *a = arq2TABM(ver, t);
         int i;
         for (i = 0; a->chaves[i].id != residencia->id; i++);
-        a->chaves[i] = copia_chaves(a->chaves[i], *residencia);
+        a->chaves[i] = TRtoTR(a->chaves[i], *residencia);
         TABM aux;
         copia(a, &aux, t);
         TABM_escreve(ver, &aux, t);
@@ -285,4 +286,52 @@ void TLSE_TR_imprime(TLSE_TR *l){
         printf("%d\n", p->info->cep);
         p = p->prox;
     }
+}
+
+char *remocao(char *no, long id, int t){
+    TABM *a = arq2TABM(no, t);
+    int i;
+    for(i = 0; i < a->nchaves && a->chaves[i].id < id; i++);
+    if((i < a->nchaves) && (id == a->chaves[i].id) && (a->folha)){
+        printf("\nCASO 1\n");
+        int j;
+        for(j=i; j<a->nchaves - 1; j++) a->chaves[j] = a->chaves[j+1];
+        a->nchaves--;
+        if(!a->nchaves) {
+            free(a);
+            remove(no);
+        }
+        else{
+            TABM_escreve(no, a, t);
+        }
+        return no;
+    }
+    if((i < a->nchaves) && (id == a->chaves[i].id)) i++;
+    TABM y = *arq2TABM(a->filhos[i], t), z, tmp;
+    if(y.nchaves == t-1){
+        tmp = *arq2TABM(a->filhos[i+1], t);
+        if((i < a->nchaves) && (tmp.nchaves >= t)){
+            printf("\nCASO 3A: i menor que nchaves\n");
+            copia(&tmp, &z, t);
+            if(!y.folha){
+                y.chaves[t-1] = TRtoTR(y.chaves[t-1], a->chaves[i]);
+                a->chaves[i] = TRtoTR(a->chaves[i], z.chaves[0]);
+            }
+            else{
+                a->chaves[i].id = z.chaves[0].id + 1;
+                y.chaves[t-1] = TRtoTR(y.chaves[t-1], z.chaves[0]);
+            }
+            y.nchaves++;
+            // PAREI AQUI
+        }
+    }
+
+}
+
+char *retira(char **raiz, long id,int t){
+    TABM *a = arq2TABM(raiz, t);
+    char tmp[20];
+    strcpy(tmp, TABM_busca(*raiz, id, t));
+    if((!a) || (strcmp(tmp, "NULL") == 0)) return "raiz";
+    return remocao(*raiz, id, t);
 }

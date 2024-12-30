@@ -8,7 +8,7 @@ void substituir_virgula_por_ponto(char *str) {
     }
 }
 
-void copia(TABM *origem, TABM *destino, int t) {
+void TABMtoTABM(TABM *origem, TABM *destino, int t) {
     destino->folha = origem->folha;
     destino->nchaves = origem->nchaves;
     strcpy(destino->prox, origem->prox);
@@ -43,7 +43,7 @@ TABM *TABM_cria_no(int t){
 
 TABM *arq2TABM(char *arq, int t){
     FILE *fp = fopen(arq, "rb");
-    if(!fp) exit(1);
+    if(!fp) return NULL;
     TABM *resp = TABM_cria_no(t);
     fread(resp, sizeof(TABM), 1, fp);
     fclose(fp);
@@ -96,7 +96,7 @@ void copia_no(TABM *x, char *arq, int t){
     FILE *fp = fopen(arq, "wb");
     if(!fp) exit(1);
     TABM aux;
-    copia(x, &aux, t);
+    TABMtoTABM(x, &aux, t);
     fwrite(&aux, sizeof(TABM), 1, fp);
     fclose(fp);
 }
@@ -174,7 +174,7 @@ char* TABM_insere(TR *residencia, int t, char **raiz, int *cont) {
         T->chaves[0] = *residencia;
         T->nchaves = 1;
         TABM aux;
-        copia(T, &aux, t);
+        TABMtoTABM(T, &aux, t);
         TABM_escreve(*raiz, &aux, t);
         TABM_libera_no(T);
         return *raiz;
@@ -188,7 +188,7 @@ char* TABM_insere(TR *residencia, int t, char **raiz, int *cont) {
         for (i = 0; a->chaves[i].id != residencia->id; i++);
         a->chaves[i] = TRtoTR(a->chaves[i], *residencia);
         TABM aux;
-        copia(a, &aux, t);
+        TABMtoTABM(a, &aux, t);
         TABM_escreve(ver, &aux, t);
         TABM_libera_no(a);
         return *raiz;
@@ -204,11 +204,11 @@ char* TABM_insere(TR *residencia, int t, char **raiz, int *cont) {
         strcpy(S->filhos[0], *raiz);
         S = divisao(S, 1, T, t, cont);
         TABM aux_3;
-        copia(T, &aux_3, t);
+        TABMtoTABM(T, &aux_3, t);
         TABM_escreve(*raiz, &aux_3, t);
         S = insere_nao_completo(S, residencia, t, cont);
         TABM aux;
-        copia(S, &aux, t);
+        TABMtoTABM(S, &aux, t);
         TABM_escreve(S_arq, &aux, t);
 
         TABM_libera_no(T);
@@ -219,7 +219,7 @@ char* TABM_insere(TR *residencia, int t, char **raiz, int *cont) {
     }
     T = insere_nao_completo(T, residencia, t, cont);
     TABM aux;
-    copia(T, &aux, t);
+    TABMtoTABM(T, &aux, t);
     TABM_escreve(*raiz, &aux, t);
     TABM_libera_no(T);
     return *raiz;
@@ -231,27 +231,6 @@ TLSE_TR *TLSE_TR_insere(TLSE_TR *l, TR *r){
     novo->prox = l;
     l = novo;
     return l;
-}
-
-void le_dados(char * arquivo, char ** raiz, int t, int* cont){
-    FILE * fp = fopen(arquivo, "r");
-    if(!fp) exit(1);
-    TR *tr = (TR*)malloc(sizeof(TR));
-    char tmp[70];
-    char preco[20], precom2[20], id[16];
-    fgets(tmp, sizeof(tmp), fp);
-    printf("%s\n", tmp);
-    while(fscanf(fp, "%15[^;];%30[^;];%30[^;];%50[^;];%d;%19[^;];%19[^;];%2499[^;];%d;%19[^;];%19[^\n]\n", id, tr->bairro, tr->tipo, tr->rua, &tr->numero, preco, precom2, tr->descricao, &tr->cep, tr->latitude, tr->longitude) == 11){
-        substituir_virgula_por_ponto(preco);
-        substituir_virgula_por_ponto(precom2);
-        tr->preco_total = atof(preco);
-        tr->preco_m2 = atof(precom2);
-        tr->id = atol(&id[1]);
-        strcpy((*raiz),TABM_insere(tr, t, raiz, cont));
-    }
-    fclose(fp);
-    free(tr);
-    return;
 }
 
 TLSE_TR *ledados(char *arq, TLSE_TR *l) {
@@ -290,6 +269,9 @@ void TLSE_TR_imprime(TLSE_TR *l){
 
 char *remocao(char *no, long id, int t){
     TABM *a = arq2TABM(no, t);
+    char busca[20];
+    strcpy(busca, TABM_busca(no, id, t));
+    if((!a) || (strcmp(busca, "NULL") == 0)) return no; // Verificacao precisa acontecer em toda chamada
     int i;
     for(i = 0; i < a->nchaves && a->chaves[i].id < id; i++);
     if((i < a->nchaves) && (id == a->chaves[i].id) && (a->folha)){
@@ -308,30 +290,98 @@ char *remocao(char *no, long id, int t){
     }
     if((i < a->nchaves) && (id == a->chaves[i].id)) i++;
     TABM y = *arq2TABM(a->filhos[i], t), z, tmp;
-    if(y.nchaves == t-1){
-        tmp = *arq2TABM(a->filhos[i+1], t);
-        if((i < a->nchaves) && (tmp.nchaves >= t)){
-            printf("\nCASO 3A: i menor que nchaves\n");
-            copia(&tmp, &z, t);
-            if(!y.folha){
-                y.chaves[t-1] = TRtoTR(y.chaves[t-1], a->chaves[i]);
-                a->chaves[i] = TRtoTR(a->chaves[i], z.chaves[0]);
+    z.nchaves = 0; // verificacao para z n existe
+    if(y.nchaves == t-1){ // CASOS 3A e 3B
+        if(i < a->nchaves){
+            tmp = *arq2TABM(a->filhos[i+1], t);
+            if((i < a->nchaves) && (tmp.nchaves >= t)){ // CASO 3A dir
+                printf("\nCASO 3A: i menor que nchaves\n");
+                copia(&tmp, &z, t);
+                if(!y.folha){
+                    y.chaves[t-1] = TRtoTR(y.chaves[t-1], a->chaves[i]);
+                    a->chaves[i] = TRtoTR(a->chaves[i], z.chaves[0]);
+                }
+                else{
+                    a->chaves[i].id = z.chaves[0].id + 1;
+                    y.chaves[t-1] = TRtoTR(y.chaves[t-1], z.chaves[0]);
+                }
+                y.nchaves++;
+                int j;
+                for(j=0; j < z.nchaves - 1; j++) 
+                    z.chaves[j] = TRtoTR(z.chaves[j], z.chaves[j+1]);
+                strcpy(y.filhos[y.nchaves], z.filhos[0]);
+                for(j=0; j < z.nchaves; j++)
+                    strcpy(z.filhos[j], z.filhos[j+1]);
+                z.nchaves--;
+                TABM_escreve(no, a, t);
+                TABM_escreve(a->filhos[i], &y, t);
+                TABM_escreve(a->filhos[i+1], &z, t);
+                strcpy(a->filhos[i], remocao(a->filhos[i], id, t));
+                FILE *fpaux = fopen(a->filhos[i], "rb");
+                if(!fpaux){
+                    strcpy(a->filhos[i], "NULL");
+                    TABM_escreve(no, a, t);
+                }
+                else fclose(fpaux);
+                return a;
             }
-            else{
-                a->chaves[i].id = z.chaves[0].id + 1;
-                y.chaves[t-1] = TRtoTR(y.chaves[t-1], z.chaves[0]);
+        }
+        if(i > 0){
+            tmp = *arq2TABM(a->filhos[i-1], t);
+            if((i > 0) && (z.nchaves == 0) && (tmp.nchaves >=t)){ //CASO 3A esq
+                printf("\nCASO 3A: i igual a nchaves\n");
+                TABMtoTABM(&tmp, &z, t);
+                int j; 
+                for(j = y.nchaves; j>0; j--)
+                    y.chaves[j] = TRtoTR(y.chaves[j], y.chaves[j-1]);
+                for(j = y.nchaves+1; j>0; j--)
+                    strcpy(y.filhos[j], y.filhos[j-1]);
+                if(!y.folha){
+                    y.chaves[0] = TRtoTR(y.chaves[0], a->chaves[i-1]);
+                    a->chaves[i-1] = TRtoTR(a->chaves[i-1], z.chaves[z.nchaves - 1]);
+                }
+                else{
+                    a->chaves[i-1] = TRtoTR(a->chaves[i-1], z.chaves[z.nchaves - 1]);
+                    y.chaves[0] = TRtoTR(y.chaves[0], z.chaves[z.nchaves-1]);
+                }
+                y.nchaves++;
+                strcpy(y.filhos[0], z.filhos[z.nchaves]);
+                z.nchaves--;
+                TABM_escreve(no, a, t);
+                TABM_escreve(a->filhos[i], &y, t);
+                TABM_escreve(a->filhos[i-1], &z, t);
+                strcpy(a->filhos[i], remocao(a->filhos[i], id, t));
+                FILE *fpaux = fopen(a->filhos[i], "rb");
+                if(!fpaux){
+                    strcpy(a->filhos[i], "NULL");
+                    TABM_escreve(no, a, t);
+                }
+                else fclose(fpaux);
             }
-            y.nchaves++;
-            // PAREI AQUI
+        }
+        if(z.nchaves == 0){ //CASO 3B
+
         }
     }
-
 }
 
-char *retira(char **raiz, long id,int t){
-    TABM *a = arq2TABM(raiz, t);
-    char tmp[20];
-    strcpy(tmp, TABM_busca(*raiz, id, t));
-    if((!a) || (strcmp(tmp, "NULL") == 0)) return "raiz";
-    return remocao(*raiz, id, t);
+void le_dados(char * arquivo, char ** raiz, int t, int* cont){
+    FILE * fp = fopen(arquivo, "r");
+    if(!fp) exit(1);
+    TR *tr = (TR*)malloc(sizeof(TR));
+    char tmp[70];
+    char preco[20], precom2[20], id[16];
+    fgets(tmp, sizeof(tmp), fp);
+    printf("%s\n", tmp);
+    while(fscanf(fp, "%15[^;];%30[^;];%30[^;];%50[^;];%d;%19[^;];%19[^;];%2499[^;];%d;%19[^;];%19[^\n]\n", id, tr->bairro, tr->tipo, tr->rua, &tr->numero, preco, precom2, tr->descricao, &tr->cep, tr->latitude, tr->longitude) == 11){
+        substituir_virgula_por_ponto(preco);
+        substituir_virgula_por_ponto(precom2);
+        tr->preco_total = atof(preco);
+        tr->preco_m2 = atof(precom2);
+        tr->id = atol(&id[1]);
+        strcpy((*raiz),TABM_insere(tr, t, raiz, cont));
+    }
+    fclose(fp);
+    free(tr);
+    return;
 }

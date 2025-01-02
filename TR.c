@@ -8,6 +8,13 @@ void substituir_virgula_por_ponto(char *str) {
     }
 }
 
+void TABM_escreve(char* arquivo, TABM* no, int t) {
+    FILE* fp = fopen(arquivo, "wb");
+    if (!fp) exit(1); // Saia do programa em caso de erro na abertura
+    fwrite(no, sizeof(TABM), 1, fp);
+    fclose(fp);
+}
+
 void TABMtoTABM(TABM *origem, TABM *destino, int t) {
     destino->folha = origem->folha;
     destino->nchaves = origem->nchaves;
@@ -39,6 +46,18 @@ TABM *TABM_cria_no(int t){
         novo->filhos[i] = (char*)malloc(sizeof(char) * 30);
     }
     return novo;
+}
+
+void TABM_cria(int t, char **arq, int *c){
+    sprintf(*arq, "Arqs/%03d.bin", (*c));
+    TABM resp;
+    resp.folha = 1;
+    resp.nchaves = 0;
+    strcpy(resp.prox, "Arqs/Prox");
+    for(int i = 0; i < (t*2)-1; i++) strcpy(resp.chaves[i].bairro, "Nulos");
+    for(int i = 0; i < (t*2); i++) strcpy(resp.filhos[i], "NULL");
+    TABM_escreve(*arq, &resp, t);
+    *c++;
 }
 
 TABM *arq2TABM(char *arq, int t){
@@ -104,7 +123,7 @@ void copia_no(TABM *x, char *arq, int t){
 TABM *divisao(TABM *x, int i, TABM *y, int t, int *cont){
     TABM *z = TABM_cria_no(t);
     char *z_nome_arq = (char*)malloc(sizeof(char) * 6);
-    TABM_cria(t, cont, &z_nome_arq);
+    TABM_cria(t, &z_nome_arq, cont);
     z->folha = y->folha;
     int j;
     if(!y->folha){
@@ -131,13 +150,6 @@ TABM *divisao(TABM *x, int i, TABM *y, int t, int *cont){
     free(z_nome_arq);
     free(z);
     return x;
-}
-
-void TABM_escreve(char* arquivo, TABM* no, int t) {
-    FILE* fp = fopen(arquivo, "wb");
-    if (!fp) exit(1); // Saia do programa em caso de erro na abertura
-    fwrite(no, sizeof(TABM), 1, fp);
-    fclose(fp);
 }
 
 TABM *insere_nao_completo(TABM *x, TR *r, int t, int *cont){
@@ -169,14 +181,14 @@ TABM *insere_nao_completo(TABM *x, TR *r, int t, int *cont){
 
 char* TABM_insere(TR *residencia, int t, char **raiz, int *cont) {
     if (!*raiz || !arq2TABM(*raiz, t)) {
-        TABM_cria(t, cont, raiz);
+        TABM_cria(t, raiz, cont);
         TABM *T = TABM_cria_no(t);
         T->chaves[0] = *residencia;
         T->nchaves = 1;
         TABM aux;
         TABMtoTABM(T, &aux, t);
         TABM_escreve(*raiz, &aux, t);
-        TABM_libera_no(T);
+        free(T);
         return *raiz;
     }
 
@@ -190,14 +202,14 @@ char* TABM_insere(TR *residencia, int t, char **raiz, int *cont) {
         TABM aux;
         TABMtoTABM(a, &aux, t);
         TABM_escreve(ver, &aux, t);
-        TABM_libera_no(a);
+        free(a);
         return *raiz;
     }
     TABM *T = arq2TABM(*raiz, t);
 
     if (T->nchaves == (2 * t) - 1) {
         char *S_arq = (char *)malloc(sizeof(char) * 30);
-        TABM_cria(t, cont, &S_arq);
+        TABM_cria(t, &S_arq, cont);
         TABM *S = arq2TABM(S_arq, t);
         S->nchaves = 0;
         S->folha = 0;
@@ -211,8 +223,8 @@ char* TABM_insere(TR *residencia, int t, char **raiz, int *cont) {
         TABMtoTABM(S, &aux, t);
         TABM_escreve(S_arq, &aux, t);
 
-        TABM_libera_no(T);
-        TABM_libera_no(S);
+        free(T);
+        free(S);
         strcpy(*raiz, S_arq);
         free(S_arq);
         return *raiz;
@@ -221,7 +233,7 @@ char* TABM_insere(TR *residencia, int t, char **raiz, int *cont) {
     TABM aux;
     TABMtoTABM(T, &aux, t);
     TABM_escreve(*raiz, &aux, t);
-    TABM_libera_no(T);
+    free(T);
     return *raiz;
 }
 
@@ -296,7 +308,7 @@ char *remocao(char *no, long id, int t){
             tmp = *arq2TABM(a->filhos[i+1], t);
             if((i < a->nchaves) && (tmp.nchaves >= t)){ // CASO 3A dir
                 printf("\nCASO 3A: i menor que nchaves\n");
-                copia(&tmp, &z, t);
+                TABMtoTABM(&tmp, &z, t);
                 if(!y.folha){
                     y.chaves[t-1] = TRtoTR(y.chaves[t-1], a->chaves[i]);
                     a->chaves[i] = TRtoTR(a->chaves[i], z.chaves[0]);
@@ -323,7 +335,7 @@ char *remocao(char *no, long id, int t){
                     TABM_escreve(no, a, t);
                 }
                 else fclose(fpaux);
-                return a;
+                return no;
             }
         }
         if(i > 0){
@@ -359,8 +371,8 @@ char *remocao(char *no, long id, int t){
                 else fclose(fpaux);
             }
         }
-        if(z.nchaves == 0){ //CASO 3B
-
+        if (z.nchaves == 0) {
+            
         }
     }
 }

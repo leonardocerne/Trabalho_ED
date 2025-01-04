@@ -274,8 +274,17 @@ TLSE_TR *ledados(char *arq, TLSE_TR *l) {
 void TLSE_TR_imprime(TLSE_TR *l){
     TLSE_TR *p = l;
     while(p){
-        printf("%d\n", p->info->cep);
+        printf("%ld\n", p->info->id);
         p = p->prox;
+    }
+}
+
+void TLSE_TR_libera(TLSE_TR *l){
+    TLSE_TR *p = l, *tmp;
+    while(p){
+        tmp = p;
+        p = p->prox;
+        free(tmp);
     }
 }
 

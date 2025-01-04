@@ -381,7 +381,96 @@ char *remocao(char *no, long id, int t){
             }
         }
         if (z.nchaves == 0) {
-            
+            if(i < a->nchaves){
+                tmp = *arq2TABM(a->filhos[i + 1], t);
+                if((i < a->nchaves) && (tmp.nchaves == t-1)){
+                    printf("\nCASO 3B: i menor que nchaves\n");
+                    TABMtoTABM(&tmp, &z, t);
+                    if(!y.folha){
+                        y.chaves[t-1] = TRtoTR(y.chaves[t-1], a->chaves[i]);
+                        y.nchaves++;
+                    }
+                    int j = 0;
+                    while(j < t-1){
+                        if(!y.folha) y.chaves[t+j] = TRtoTR(y.chaves[t+j], z.chaves[j]);
+                        else y.chaves[t+j-1] = TRtoTR(y.chaves[t+j-1], z.chaves[j]);
+                        y.nchaves++;
+                        j++;
+                    }
+                    strcpy(y.prox, z.prox);
+                    if(!y.folha){
+                        for(j=0; j<t; j++){
+                            strcpy(y.filhos[t+j], z.filhos[j]);
+                            strcpy(z.filhos[j], "NULL");
+                        }
+                    }
+                    remove(a->filhos[i+1]);
+                    for(j=i; j < a->nchaves-1; j++){
+                        a->chaves[j] = TRtoTR(a->chaves[j], a->chaves[j+1]);
+                        strcpy(a->filhos[j+1], a->filhos[j+2]);
+                    }
+                    strcpy(a->filhos[a->nchaves], "NULL");
+                    a->nchaves--;
+                    if(!a->nchaves){
+                        remove(no);
+                        strcpy(no, a->filhos[0]);
+                    }
+                    TABM_escreve(no, a, t);
+                    TABM_escreve(a->filhos[i], &y, t);
+                    strcpy(no, TABM_remover(no, id, t));
+                    FILE *aux = fopen(a->filhos[i], "rb");
+                    if(!aux){
+                        strcpy(a->filhos[i], "NULL");
+                        TABM_escreve(no, a, t);
+                    } else fclose(aux);
+                    return no;
+                }
+            }
+            if((i > 0) && (z.nchaves == 0)){
+                tmp = *arq2TABM(a->filhos[i-1], t);
+                if((i > 0) && (tmp.nchaves == t-1)){
+                    TABMtoTABM(&tmp, &z, t);
+                    if(!y.folha){
+                        if(i == a->nchaves) z.chaves[t-1] = TRtoTR(z.chaves[t-1], a->chaves[i-1]);
+                    } else z.chaves[t-1] = TRtoTR(z.chaves[t-1], a->chaves[i]);
+                    z.nchaves++;
+                }
+                int j = 0;
+                while(j < t-1){
+                    if(!y.folha) z.chaves[t+j] = TRtoTR(z.chaves[t+j], y.chaves[j]);
+                    else z.chaves[t+j-1] = TRtoTR(z.chaves[t+j-1], y.chaves[j]);
+                    z.nchaves++;
+                    j++;
+                }
+                strcpy(z.prox, y.prox);
+                if(!z.folha){
+                    for(j = 0; j < t; j++){
+                        strcpy(z.filhos[t+j], y.filhos[j]);
+                        strcpy(y.filhos[j], "NULL");
+                    }
+                }
+                remove(a->filhos[i]);
+                strcpy(a->filhos[a->nchaves], "NULL");
+                a->nchaves--;
+                if(!a->nchaves){
+                    remove(no);
+                    strcpy(no,a->filhos[0]);
+                }
+                else{
+                    TABM_escreve(no, a, t);
+                    if(strcmp(a->filhos[i-1], "NULL") != 0) {
+                        TABM_escreve(a->filhos[i-1], &z, t);
+                        i--;
+                        strcpy(a->filhos[i], remocao(a->filhos[i], id, t));
+                        FILE *aux = fopen(a->filhos[i], "rb");
+                        if(!aux){
+                            strcpy(a->filhos[i], "NULL");
+                            TABM_escreve(no, a, t);
+                        } else fclose(aux);
+                    }
+                }
+                return no;
+            }
         }
     }
 }

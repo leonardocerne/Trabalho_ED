@@ -56,13 +56,26 @@ void retornaBAIRRO(char *bairro, int t, char *arq){
 }
 
 // Retorna todas residências de mesmo tipo
-void retornaTIPO(char *tipo, int t, char *arq){
+void retornaTIPO(int tipo, int t, char **arq){
     TLSE_TR *resp = NULL;
-    TABM *x = arq2TABM(arq,t);
+    TABM *x = arq2TABM(*arq,t);
     while(!x->folha) x = arq2TABM(x->filhos[0],t);
+    char aux[30];
+    if (tipo == 1) strcpy(aux,"APARTMENT");
+    else if (tipo == 2) strcpy(aux,"HOME");
+    else if (tipo == 3) strcpy(aux,"RESIDENTIAL_ALLOTMENT_LAND");
+    else if (tipo == 4) strcpy(aux,"COMMERCIAL_PROPERTY");
+    else if (tipo == 5) strcpy(aux,"OFFICE");
+    else if (tipo == 6) strcpy(aux,"COMMERCIAL_BUILDING");
+    else if (tipo == 7) strcpy(aux,"CONDOMINIUM");
+    else if (tipo == 8) strcpy(aux,"BUSINESS");
+    else if (tipo == 9) strcpy(aux,"PENTHOUSE");
+    else if (tipo == 10) strcpy(aux,"VILLAGE_HOUSE");
+    else if (tipo == 11) strcpy(aux,"SHED_DEPOSIT_WAREHOUSE");
+    else if (tipo == 12) strcpy(aux,"ALLOTMENT_LAND");
     while(x){
         for(int i=0;i<x->nchaves;i++){
-            if (strcmp(x->chaves[i].tipo, tipo)==0) resp = TLSE_TR_insere(resp,&x->chaves[i]);
+            if (strcmp(x->chaves[i].tipo, aux)==0) resp = TLSE_TR_insere(resp,&x->chaves[i]);
         }
         x =  arq2TABM(x->prox,t);
     }
@@ -130,4 +143,55 @@ void removeImoveisPorPreco(double precoMin, double precoMax, int t, char *arq) {
 
     TLSE_TR_libera(listaRemocoes);
 
+}
+
+
+// Alterando preço total de uma residencia
+void alteraPrecoTotal(long int id, double novoPrecoTotal, int t, char *arq) {
+    char resp[20];
+    int i;
+    strcpy(resp, TABM_busca(arq, id, t));
+    if(strcmp(resp, "NULL") == 0){
+        printf("ID %ld nao encontrado\n", id);
+        return;
+    }
+    TABM *x = arq2TABM(resp, t);
+    for(i = 0; (i < x->nchaves) && (x->chaves[i].id != id); i++);
+    x->chaves[i].preco_total = novoPrecoTotal;
+    TABM_escreve(resp, x, t);
+    printf("\nPreco alterado com sucesso\n");
+    return;
+}
+
+
+// Alterando preço por m2
+void alteraPrecoPorM2(long int id, double novoPrecoM2, int t, char *arq) {
+    char resp[20];
+    int i;
+    strcpy(resp, TABM_busca(arq, id, t));
+    if (strcmp(resp, "NULL") == 0) {
+        printf("ID %ld nao encontrado\n", id);
+        return;
+    }
+    TABM *x = arq2TABM(resp, t);
+    for (i = 0; (i < x->nchaves) && (x->chaves[i].id != id); i++);
+    x->chaves[i].preco_m2 = novoPrecoM2;
+    TABM_escreve(resp, x, t);
+    return;
+}
+
+// Alterando descrições
+void alteraDescricao(long int id, char *novaDescricao, int t, char *arq) {
+    char resp[20];
+    int i;
+    strcpy(resp, TABM_busca(arq, id, t));
+    if (strcmp(resp, "NULL") == 0) {
+        printf("ID %ld nao encontrado\n", id);
+        return;
+    }
+    TABM *x = arq2TABM(resp, t);
+    for (i = 0; (i < x->nchaves) && (x->chaves[i].id != id); i++);
+    strcpy(x->chaves[i].descricao, novaDescricao);
+    TABM_escreve(resp, x, t);
+    return;
 }

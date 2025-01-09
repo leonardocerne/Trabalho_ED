@@ -1,25 +1,23 @@
 #include "TR.c"
 
 // Função para limpar o buffer de entrada
-void limpar_buffer(void){
+void limpar_buffer(){
     int c;
     while ((c = getchar()) != '\n' && c != EOF);
 }
 
 int main(void){
     TR aux, aux2;
-    int t, opcao, op2, id;
+    int t, opcao, op2;
+    long int id;
     int cont = 1;
-    /*
     char * raiz = (char*)malloc(sizeof(char)*30);
     printf("Insira o valor de t para a construcao da arvore: ");
     scanf("%d", &t);
     if(t < 2) t = 2;
     le_dados("entrada.txt", &raiz, t, &cont);
-    TABM_imprime_chaves(raiz, t);
-     */
     do{
-        printf("\n\t0 - Sair\n\t1 - Retornar imoveis\n\t2 - Retirar imoveis\n\t3 - Inserir imoveis\n\t4 - Alterar imoveis\n\t");
+        printf("\n\t0 - Sair\n\t1 - Retornar imoveis\n\t2 - Retirar imoveis\n\t3 - Inserir imoveis\n\t4 - Alterar imoveis\n\t5 - Retornar infomacoes adicionais\n");
         printf("\n");
         printf("\tDigite uma das opcoes acima: ");
         scanf("%d", &opcao);
@@ -223,10 +221,16 @@ int main(void){
                     scanf("%lf",&aux2.preco_m2);
                 }
                 else if (op2 == 3){
+                    limpar_buffer();
                     printf("\n\tdigite a nova descricao: ");
                     scanf("%2500[^\n]",aux2.descricao);
                 }
                 break;
+
+            case 5:
+                printf("\n\tdigite o id do imovel que voce quer receber informacoes adicionais: ");
+                scanf("%ld", &id);
+
             default:
                 if(opcao != 0) printf("Opcao invalida!!!\n");
                 break;

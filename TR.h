@@ -27,6 +27,6 @@ typedef struct arvbm{
     int folha;
     int nchaves;
     char prox[30];
-    TR *chaves;
-    char **filhos;
+    TR chaves[(2 * MAX_T) - 1];
+    char filhos[2 * MAX_T][30];
 }TABM;

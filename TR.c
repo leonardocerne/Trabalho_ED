@@ -45,6 +45,7 @@ TABM *TABM_cria_no(int t){
     TABM *novo = (TABM*)malloc(sizeof(TABM));
     novo->nchaves = 0;
     novo->folha = 1;
+    strcpy(novo->prox, "prox");
     /*
     novo->chaves = (TR*)malloc(sizeof(TR) * (t*2)-1);
     novo->filhos = (char**)malloc(sizeof(char**) * t * 2);
@@ -62,8 +63,10 @@ void TABM_cria(int t, char **arq, int *c){
     resp.nchaves = 0;
     resp.prox;
     strcpy(resp.prox, "Arqs/Prox");
-    for(int i = 0; i < (t*2)-1; i++) strcpy(resp.chaves[i].bairro, "Nulos");
-    for(int i = 0; i < (t*2); i++) strcpy(resp.filhos[i], "NULL");
+    for(int i = 0; i < (t*2)-1; i++) {
+        strcpy(resp.chaves[i].bairro, "Nulos");
+    }
+    for(int i = 0; i < (t*2); i++) strcpy(resp.filhos[i], "Nada");
     TABM_escreve(*arq, &resp, t);
     (*c)++;
 }

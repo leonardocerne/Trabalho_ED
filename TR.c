@@ -115,6 +115,25 @@ void TABM_imprime_chaves(char *raiz, int t){
     }
 }
 
+
+
+void imp(char *raiz, int andar, int t){
+    TABM *a = arq2TABM(raiz, t);
+    int i,j;
+    imp(a->filhos[a->nchaves],andar+1, t);
+    for(i=a->nchaves-1; i >= 0; i--){
+    for(j=0; j<=andar; j++) printf("\t");
+    printf("%s\n", raiz);
+    imp(a->filhos[i],andar+1, t);
+    }
+}
+
+void TARVBM_imprime(char *raiz, int t){
+  imp(raiz, 0, t);
+}
+
+
+
 char *TABM_busca(char *arq, long id, int t){
     TABM *a = arq2TABM(arq, t);
     if(!a) return "NULL";

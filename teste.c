@@ -1,4 +1,4 @@
-#include "TR.c"
+#include "TR.h"
 
 // Função para limpar o buffer de entrada
 void limpar_buffer(){
@@ -207,7 +207,7 @@ int main(void){
 
             case 4:
                 printf("\n\tdigite o id do imovel que deseja alterar:");
-                scanf("%d",&id);
+                scanf("%ld",&id);
                 printf("\n\t0 - voltar\n\t1 - preco total\n\t2 - preco por m2\n\t3 - descricao\n");
                 printf("\n");
                 printf("\tDigite o que deseja alterar: ");
@@ -236,5 +236,6 @@ int main(void){
                 break;
         }
     } while (opcao);
+    free(raiz);
     return 0;
 }

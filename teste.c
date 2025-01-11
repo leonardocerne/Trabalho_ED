@@ -1,4 +1,5 @@
 #include "TR.h"
+#include "funcoes.h"
 
 // Função para limpar o buffer de entrada
 void limpar_buffer(){
@@ -11,6 +12,7 @@ int main(void){
     int t, opcao, op2;
     long int id;
     int cont = 1;
+    char ba[20];
     char * raiz = (char*)malloc(sizeof(char)*30);
     printf("Insira o valor de t para a construcao da arvore: ");
     scanf("%d", &t);
@@ -74,6 +76,7 @@ int main(void){
                         char ba[20];
                         printf("\n\tdigite o bairro:");
                         scanf("%30[^\n]",ba);
+                        retornaBAIRRO(ba, t, raiz);
                     }
                     else continue;
                 }
@@ -134,11 +137,10 @@ int main(void){
                         scanf("%50[^\n]", rua);
                     }
                     else if (op2==5){
-                        char ba[20];
                         printf("\n\tdigite o bairro:");
                         scanf("%30[^\n]",ba);
                     }
-                    else continue;
+                    else printf("\n\topcao invalida");
                 }
                 else if (op2==3){
                     printf("\n\t0 - Voltar\n\t1 - Apartamentos\n\t2 - Casas\n\t3 - Terrenos Residenciais\n\t4 - Comércios\n\t 5 - Escritórios\n\t 6 - Salas Comerciais\n\t 7 - Condomínios\n\t 8 - Empreendimentos\n\t 9 - Coberturas\n\t 10 - Casas de Vilarejo\n\t 11 - Depósitos\n\t 12 - Lotes");

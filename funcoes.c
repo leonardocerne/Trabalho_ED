@@ -1,4 +1,4 @@
-#include "TR.c"
+#include "funcoes.h"
 // Retorna todas as residências de mesmo CEP
 void retornaCEP(int cep, int t, char *arq){
     TLSE_TR *resp = NULL;
@@ -260,7 +260,7 @@ void retiraPorCEP(int cep, int t, char *arq) {
         p = p->prox;
     }
 
-    TLSE_libera(listaRemocoes);
+    TLSE_TR_libera(listaRemocoes);
     printf("Remoção concluída para imóveis com CEP %d.\n", cep);
 }
 

@@ -115,35 +115,47 @@ void TABM_imprime_chaves(char *raiz, int t){
     }
 }
 
-
-
-void imp(char *raiz, int andar, int t){
-    TABM *a = arq2TABM(raiz, t);
-    int i,j;
-    imp(a->filhos[a->nchaves],andar+1, t);
-    for(i=a->nchaves-1; i >= 0; i--){
-    for(j=0; j<=andar; j++) printf("\t");
-    printf("%s\n", raiz);
-    imp(a->filhos[i],andar+1, t);
+void imp(char* raiz,int andar, int t){
+    FILE* fp = fopen(raiz,"rb");
+    if(fp){
+        TABM * a = TABM_cria_no(t);
+        fread(a,sizeof(TABM),1,fp);
+        int i,j;
+        for(i = 0; i < a->nchaves; i++){
+            imp(a->filhos[i],andar+1,t);
+            for(j = 0; j<= andar; j++) printf("\t");
+            printf("%ld\n", a->chaves[i].id);
+        }
+        imp(a->filhos[i],andar+1,t);
+        fclose(fp);
+        TABM_libera(a);
     }
+    return;
 }
 
-void TARVBM_imprime(char *raiz, int t){
-  imp(raiz, 0, t);
+void TABM_imprime(char** raiz,int t){
+    printf("\n\n\n");
+    imp(*raiz,0,t);
 }
-
-
 
 char *TABM_busca(char *arq, long id, int t){
-    TABM *a = arq2TABM(arq, t);
-    if(!a) return "NULL";
+    TABM a = *arq2TABM(arq, t);
+    if(a.nchaves == 0) return "NULL";
     int i = 0;
-    while((i < a->nchaves) && (id > a->chaves[i].id)) i++;
-    if((i < a->nchaves) && (a->folha) && (id == a->chaves[i].id)) return arq;
-    if(a->folha) return "NULL";
-    if(a->chaves[i].id == id) i++;
-    if(i > a->nchaves) i = a->nchaves;
-    return TABM_busca(a->filhos[i], id, t);
+    while((i < a.nchaves) && (id > a.chaves[i].id)) i++;
+    if((i < a.nchaves) && (a.folha) && (id == a.chaves[i].id)) return arq;
+    if(a.folha) return "NULL";
+    if(a.chaves[i].id == id) i++;
+    if(i > a.nchaves) i = a.nchaves;
+    return TABM_busca(a.filhos[i], id, t);
+}
+
+void funcauxbusca(char *raiz, long id, int t){
+    char tmp[20];
+    strcpy(tmp, TABM_busca(raiz, id, t));
+    printf("\n\t%s", tmp);
+    TABM a = *arq2TABM(tmp, t);
+    printf("\t\n%s", a.chaves[0].rua);
 }
 
 void copia_no(TABM *x, char *arq, int t){
@@ -151,8 +163,6 @@ void copia_no(TABM *x, char *arq, int t){
     if(!fp) exit(1);
     TABM aux;
     TABMtoTABM(x, &aux, t);
-    printf("\n%s", aux.prox);
-    for(int i = 0; i < aux.nchaves; i++) printf("\n:%s", aux.chaves[i].bairro);
     fwrite(&aux, sizeof(TABM), 1, fp);
     fclose(fp);
 }
@@ -185,9 +195,12 @@ TABM *divisao(TABM *x, int i, TABM *y, int t, int *cont){
     for(j = x->nchaves; j >= i; j--) x->chaves[j] = x->chaves[j-1];
     x->chaves[i-1] = y->chaves[t-1];
     x->nchaves++;
-    printf("\nIDteste:%ld", z->chaves[0].id);
-    copia_no(z, z_nome_arq, t);
-    printf("\nIDteste:%ld", z->chaves[0].id);
+    FILE *fz = fopen(z_nome_arq, "wb+");
+    TABM aux;
+    TABMtoTABM(z, &aux, t);
+    fwrite(&aux, sizeof(TABM), 1, fz);
+    fclose(fz);
+    free(z_nome_arq);
     TABM_libera(z);
     return x;
 }
@@ -219,6 +232,22 @@ TABM *insere_nao_completo(TABM *x, TR *r, int t, int *cont){
     return x;
 }
 
+
+void contachaves(char *arq, int t){
+    TABM *a = arq2TABM(arq, t);
+    if(!a->folha){
+        contachaves(a->filhos[0], t);
+    }
+    else {
+        int c = 0;
+        while(a){
+            c = c + a->nchaves;
+            printf("\t%s", a->prox);
+            a = arq2TABM(a->prox, t);
+        }
+        printf("%d\n", c);
+    }
+}
 
 char* TABM_insere(TR *residencia, int t, char **raiz, int *cont) {
     FILE *fp = fopen(*raiz, "rb+");
@@ -532,7 +561,7 @@ void le_dados(char * arquivo, char ** raiz, int t, int* cont){
         tr->id = atol(&id[1]);
         strcpy((*raiz),TABM_insere(tr, t, raiz, cont));
         TABM *a = arq2TABM(*raiz, t);
-        TABM_imprime_chaves(*raiz, t);
+        // TABM_imprime(raiz, t);
     }
     fclose(fp);
     free(tr);

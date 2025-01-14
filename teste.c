@@ -1,6 +1,4 @@
-#include "TR.h"
 #include "funcoes.h"
-
 // Função para limpar o buffer de entrada
 void limpar_buffer(){
     int c;
@@ -12,12 +10,13 @@ int main(void){
     int t, opcao, op2;
     long int id;
     int cont = 1;
-    char ba[20];
     char * raiz = (char*)malloc(sizeof(char)*30);
     printf("Insira o valor de t para a construcao da arvore: ");
     scanf("%d", &t);
     if(t < 2) t = 2;
     le_dados("entrada.txt", &raiz, t, &cont);
+    TABM_imprime(&raiz, t);
+    contachaves(raiz, t);
     do{
         printf("\n\t0 - Sair\n\t1 - Retornar imoveis\n\t2 - Retirar imoveis\n\t3 - Inserir imoveis\n\t4 - Alterar imoveis\n\t5 - Retornar infomacoes adicionais\n");
         printf("\n");
@@ -74,9 +73,12 @@ int main(void){
                     }
                     else if (op2==5){
                         char ba[20];
+                        limpar_buffer();
                         printf("\n\tdigite o bairro:");
                         scanf("%30[^\n]",ba);
-                        retornaBAIRRO(ba, t, raiz);
+                        limpar_buffer();
+                        printf("%s", ba);
+                        retornaBAIRRO(ba,t,raiz);
                     }
                     else continue;
                 }
@@ -137,10 +139,14 @@ int main(void){
                         scanf("%50[^\n]", rua);
                     }
                     else if (op2==5){
+                        char ba[20];
                         printf("\n\tdigite o bairro:");
+                        limpar_buffer();
                         scanf("%30[^\n]",ba);
+                        limpar_buffer();
+                        printf("%s", ba);
                     }
-                    else printf("\n\topcao invalida");
+                    else continue;
                 }
                 else if (op2==3){
                     printf("\n\t0 - Voltar\n\t1 - Apartamentos\n\t2 - Casas\n\t3 - Terrenos Residenciais\n\t4 - Comércios\n\t 5 - Escritórios\n\t 6 - Salas Comerciais\n\t 7 - Condomínios\n\t 8 - Empreendimentos\n\t 9 - Coberturas\n\t 10 - Casas de Vilarejo\n\t 11 - Depósitos\n\t 12 - Lotes");
@@ -232,6 +238,12 @@ int main(void){
             case 5:
                 printf("\n\tdigite o id do imovel que voce quer receber informacoes adicionais: ");
                 scanf("%ld", &id);
+                //procurabanheiro(id,t,raiz);
+                //procuradormi(id,t,raiz);
+                //procurambiente(id,t,raiz);
+                procuraqto(id,t,raiz);
+                //procuravaga(id,t,raiz);
+                break;
 
             default:
                 if(opcao != 0) printf("Opcao invalida!!!\n");

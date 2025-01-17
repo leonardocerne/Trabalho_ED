@@ -562,17 +562,19 @@ void TABM_imprime_por_ID(char *raiz, long int id, int t){
     if(a->chaves[i].id == id){
         //ID;BAIRRO;TIPO;RUA;NUMERO;PRECO;R$/m2;DESC;CEP;latitude;longitude
         printf("\nResidencia de ID%ld:", id);
-        printf("\n\tBairro-%s", a->chaves[i].bairro);
-        printf("\n\tRua-%s", a->chaves[i].rua);
-        printf("\n\tTipo-%s", a->chaves[i].tipo);
-        printf("\n\tNumero-%d", a->chaves[i].numero);
-        printf("\n\tPreco-%f", a->chaves[i].preco_total);
-        printf("\n\tPreco por m2-%f", a->chaves[i].preco_m2);
-        printf("\n\tCEP-%d", a->chaves[i].cep);
-        printf("\n\tLatitude-%s", a->chaves[i].latitude);
-        printf("\n\tLongitude-%s", a->chaves[i].longitude);
-        printf("\n\tDescricao-%s", a->chaves[i].descricao);
-        printf("\n------------------------------------------------------------------");
+        printf("\n\tBairro: %s", a->chaves[i].bairro);
+        printf("\n\tRua: %s", a->chaves[i].rua);
+        printf("\n\tTipo: %s", a->chaves[i].tipo);
+        printf("\n\tNumero: %d", a->chaves[i].numero);
+        printf("\n\tPreco: %.2f", a->chaves[i].preco_total);
+        printf("\n\tPreco por m2: %.2f", a->chaves[i].preco_m2);
+        int m = (a->chaves[i].preco_total / a->chaves[i].preco_m2);
+        printf("\n\tM2: %d", m);
+        printf("\n\tCEP: %d", a->chaves[i].cep);
+        printf("\n\tLatitude: %s", a->chaves[i].latitude);
+        printf("\n\tLongitude: %s", a->chaves[i].longitude);
+        printf("\n\tDescricao: %s", a->chaves[i].descricao);
+        printf("\n--------------------------------------------------------------------------------------------------------------------------------------------------");
     }
 }
 

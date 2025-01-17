@@ -3,6 +3,10 @@
 #include <string.h>
 #include "TR.h"
 
+void procuraqto (long int id,int t,char *arq);
+
+void retornaBAIRRO(char *bairro, int t, char *arq);
+
 void retornaCEP(int cep, int t, char *arq);
 
 // Retorna todas residências de mesma latitude
@@ -18,10 +22,10 @@ void retornaBAIRRO(char *bairro, int t, char *arq);
 void retornaTIPO(int tipo, int t, char **arq);
 
 // Retorna todas residências com mesma quantidade de metros quadrados
-void retornaM2(int m2, int t, char *arq);
+void retornaM2(double m2, int t, char *arq);
 
 // Retorna todas residências na mesma rua
-void retornaRUA(char rua, int t, char *arq);
+void retornaRUA(char *rua, int t, char *arq);
 
 // Remove todos imoveis dentro de uma faixa de preço
 void removeImoveisPorPreco(double precoMin, double precoMax, int t, char *arq);
@@ -50,3 +54,23 @@ void retiraPorBairro(char *bairro, int t, char *arq);
 void procuraqto (long int id,int t,char *arq);
 
 void procuravenda (int t,char *arq);
+
+void procurabanheiro (long int id,int t,char *arq);
+
+void procuradorm (long int id,int t,char *arq);
+
+void procuravaga (long int id,int t,char *arq);
+
+void procurasuite (long int id,int t,char *arq);
+
+void procuraamb (long int id,int t,char *arq);
+
+void procurametro (long int id,int t,char *arq);
+
+void procurap24 (long int id,int t,char *arq);
+
+void procuravenda (int t,char *arq);
+
+void procuraaluga (int t,char *arq);
+
+void alteraPrecoTotal(long int id, double novoPrecoTotal, int t, char *arq);

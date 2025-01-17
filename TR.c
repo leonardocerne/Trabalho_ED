@@ -221,9 +221,13 @@ TABM *insere_nao_completo(TABM *x, TR *r, int t, int *cont){
     TABM *z = TABM_cria_no(t);
     z = arq2TABM(x->filhos[i], t);
     if(z->nchaves == ((2*t)-1)){
+        FILE *fp = fopen(x->filhos[i],"wb");
         x = divisao(x, (i+1), z, t, cont);
         if(r->id > x->chaves[i].id) i++;
-        copia_no(z, x->filhos[i], t);
+        TABM aux;
+        TABMtoTABM(z,&aux,t);
+        fwrite(&aux,sizeof(TABM),1,fp);
+        fclose(fp);
     }
     z = arq2TABM(x->filhos[i], t);
     z = insere_nao_completo(z, r, t, cont);
@@ -398,7 +402,7 @@ char *remocao(char *no, long id, int t){
                 }
                 y.nchaves++;
                 int j;
-                for(j=0; j < z.nchaves - 1; j++) 
+                for(j=0; j < z.nchaves - 1; j++)
                     z.chaves[j] = TRtoTR(z.chaves[j], z.chaves[j+1]);
                 strcpy(y.filhos[y.nchaves], z.filhos[0]);
                 for(j=0; j < z.nchaves; j++)
@@ -422,7 +426,7 @@ char *remocao(char *no, long id, int t){
             if((i > 0) && (z.nchaves == 0) && (tmp.nchaves >=t)){ //CASO 3A esq
                 printf("\nCASO 3A: i igual a nchaves\n");
                 TABMtoTABM(&tmp, &z, t);
-                int j; 
+                int j;
                 for(j = y.nchaves; j>0; j--)
                     y.chaves[j] = TRtoTR(y.chaves[j], y.chaves[j-1]);
                 for(j = y.nchaves+1; j>0; j--)
@@ -542,6 +546,33 @@ char *remocao(char *no, long id, int t){
                 return no;
             }
         }
+    }
+}
+
+void TABM_imprime_por_ID(char *raiz, long int id, int t){
+    char aux[20];
+    strcpy(aux, TABM_busca(raiz, id, t));
+    if(strcmp(aux, "NULL") == 0){
+        printf("\nA arvore nao possui residencia com esse ID.");
+        return;
+    }
+    TABM *a = arq2TABM(aux, t);
+    int i;
+    for(i = 0; (i < a->nchaves) && (a->chaves[i].id != id); i++);
+    if(a->chaves[i].id == id){
+        //ID;BAIRRO;TIPO;RUA;NUMERO;PRECO;R$/m2;DESC;CEP;latitude;longitude
+        printf("\nResidencia de ID%ld:", id);
+        printf("\n\tBairro-%s", a->chaves[i].bairro);
+        printf("\n\tRua-%s", a->chaves[i].rua);
+        printf("\n\tTipo-%s", a->chaves[i].tipo);
+        printf("\n\tNumero-%d", a->chaves[i].numero);
+        printf("\n\tPreco-%f", a->chaves[i].preco_total);
+        printf("\n\tPreco por m2-%f", a->chaves[i].preco_m2);
+        printf("\n\tCEP-%d", a->chaves[i].cep);
+        printf("\n\tLatitude-%s", a->chaves[i].latitude);
+        printf("\n\tLongitude-%s", a->chaves[i].longitude);
+        printf("\n\tDescricao-%s", a->chaves[i].descricao);
+        printf("\n------------------------------------------------------------------");
     }
 }
 

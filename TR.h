@@ -80,3 +80,9 @@ void imp(char *raiz, int andar, int t);
 void TABM_imprime(char **raiz, int t);
 
 void contachaves(char *arq, int t);
+
+void le_dados(char * arquivo, char ** raiz, int t, int* cont);
+
+void TABM_imprime(char** raiz,int t);
+
+void TABM_imprime_por_ID(char *raiz, long int id, int t);

@@ -33,6 +33,8 @@ typedef struct arvbm{
 
 void substituir_virgula_por_ponto(char *str);
 
+void funcauxbusca(char *raiz, long int id, int t);
+
 void TABM_libera(TABM *a);
 
 void TABM_escreve(char* arquivo, TABM* no, int t);
@@ -75,4 +77,12 @@ void le_dados(char * arquivo, char ** raiz, int t, int* cont);
 
 void imp(char *raiz, int andar, int t);
 
-void TARVBM_imprime(char *raiz, int t);
+void TABM_imprime(char **raiz, int t);
+
+void contachaves(char *arq, int t);
+
+void le_dados(char * arquivo, char ** raiz, int t, int* cont);
+
+void TABM_imprime(char** raiz,int t);
+
+void TABM_imprime_por_ID(char *raiz, long int id, int t);

@@ -589,6 +589,35 @@ void TABM_imprime_por_ID(char *raiz, long int id, int t){
     }
 }
 
+void TABM_imprime_por_ID(char *raiz, long int id, int t){
+    char aux[20];
+    strcpy(aux, TABM_busca(raiz, id, t));
+    if(strcmp(aux, "NULL") == 0){
+        printf("\nA arvore nao possui residencia com esse ID.");
+        return;
+    }
+    TABM *a = arq2TABM(aux, t);
+    int i;
+    for(i = 0; (i < a->nchaves) && (a->chaves[i].id != id); i++);
+    if(a->chaves[i].id == id){
+        //ID;BAIRRO;TIPO;RUA;NUMERO;PRECO;R$/m2;DESC;CEP;latitude;longitude
+        printf("\nResidencia de ID%ld:", id);
+        printf("\n\tBairro: %s", a->chaves[i].bairro);
+        printf("\n\tRua: %s", a->chaves[i].rua);
+        printf("\n\tTipo: %s", a->chaves[i].tipo);
+        printf("\n\tNumero: %d", a->chaves[i].numero);
+        printf("\n\tPreco: %.2f", a->chaves[i].preco_total);
+        printf("\n\tPreco por m2: %.2f", a->chaves[i].preco_m2);
+        int m = (a->chaves[i].preco_total / a->chaves[i].preco_m2);
+        printf("\n\tM2: %d", m);
+        printf("\n\tCEP: %d", a->chaves[i].cep);
+        printf("\n\tLatitude: %s", a->chaves[i].latitude);
+        printf("\n\tLongitude: %s", a->chaves[i].longitude);
+        printf("\n\tDescricao: %s", a->chaves[i].descricao);
+        printf("\n--------------------------------------------------------------------------------------------------------------------------------------------------");
+    }
+}
+
 void le_dados(char * arquivo, char ** raiz, int t, int* cont){
     FILE * fp = fopen(arquivo, "r");
     if(!fp) exit(1);

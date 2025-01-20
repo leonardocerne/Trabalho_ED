@@ -83,13 +83,13 @@ void retornaTIPO(int tipo, int t, char **arq){
 }
 
 // Retorna todas residências com mesma quantidade de metros quadrados
-void retornaM2(double m2, int t, char *arq){
+void retornaM2(int m2, int t, char *arq){
     TLSE_TR *resp = NULL;
     TABM *x = arq2TABM(arq,t);
     while(!x->folha) x = arq2TABM(x->filhos[0],t);
     while(x){
         for(int i=0;i<x->nchaves;i++){
-            if ((x->chaves[i].preco_total / x->chaves[i].preco_m2) == m2) resp = TLSE_TR_insere(resp,&x->chaves[i]);
+            if ((int)(x->chaves[i].preco_total / x->chaves[i].preco_m2) == m2) resp = TLSE_TR_insere(resp,&x->chaves[i]);
         }
         x =  arq2TABM(x->prox,t);
     }
@@ -138,15 +138,8 @@ void removeImoveisPorPreco(double precoMin, double precoMax, int t, char *arq) {
     char tmp[20];
     while (p) {
         printf("Removendo imóvel ID: %ld\n", p->info->id);
-        strcpy(tmp, TABM_busca(arq, p->info->id, t));
         strcpy(arq, remocao(arq, p->info->id, t));
-        remove(tmp);
         p =p->prox;
-    }
-    TLSE_TR *u = listaRemocoes;
-    while(u){
-        if (!TABM_busca(arq,u->info->id,t)) printf("o %ld id foi retirado corretamente.", u->info->id);
-        else printf("o %ld id NAO foi retirado corretamente.", u->info->id);
     }
     TLSE_TR_libera(listaRemocoes);
 
@@ -225,17 +218,10 @@ void retiraPorTipo(char *tipo, int t, char *arq) {
     TLSE_TR *p = listaRemocoes;
     while (p) {
         printf("Removendo imóvel ID: %ld\n", p->info->id);
-        strcpy(tmp, TABM_busca(arq, p->info->id, t));
         strcpy(arq, remocao(arq, p->info->id, t));
-        remove(tmp);
         p = p->prox;
     }
-    TLSE_TR *u = listaRemocoes;
-    while(u){
-        if (!TABM_busca(arq,u->info->id,t)) printf("o %ld id foi retirado corretamente.", u->info->id);
-        else printf("o %ld id NAO foi retirado corretamente.", u->info->id);
-    }
-    TLSE_TR_libera(listaRemocoes);
+    //TLSE_TR_libera(listaRemocoes);
     printf("Remoção concluída para imóveis do tipo %s.\n", tipo);
 }
 
@@ -262,13 +248,11 @@ void retiraPorCEP(int cep, int t, char *arq) {
     char tmp[20];
     while (p) {
         printf("Removendo imóvel ID: %ld\n", p->info->id);
-        strcpy(tmp, TABM_busca(arq, p->info->id, t));
         strcpy(arq, remocao(arq, p->info->id, t));
-        remove(tmp);
         p = p->prox;
     }
 
-    TLSE_TR_libera(listaRemocoes);
+    //TLSE_TR_libera(listaRemocoes);
     printf("Remoção concluída para imóveis com CEP %d.\n", cep);
 }
 
@@ -295,13 +279,11 @@ void retiraPorRua(char *rua, int t, char *arq) {
     char tmp[20];
     while (p) {
         printf("Removendo imóvel ID: %ld\n", p->info->id);
-        strcpy(tmp, TABM_busca(arq, p->info->id, t));
         strcpy(arq, remocao(arq, p->info->id, t));
-        remove(tmp);
         p = p->prox;
     }
 
-    TLSE_TR_libera(listaRemocoes);
+    //TLSE_TR_libera(listaRemocoes);
     printf("Remoção concluída para imóveis na rua %s.\n", rua);
 }
 
@@ -328,12 +310,11 @@ void retiraPorLatitude(char *latitude, int t, char *arq) {
     char tmp[20];
     while (p) {
         printf("Removendo imóvel ID: %ld\n", p->info->id);
-        strcpy(tmp, TABM_busca(arq, p->info->id, t));
         strcpy(arq, remocao(arq, p->info->id, t));
         p = p->prox;
     }
 
-    TLSE_TR_libera(listaRemocoes);
+    //TLSE_TR_libera(listaRemocoes);
     printf("Remoção concluída para imóveis com latitude %s.\n", latitude);
 }
 
@@ -364,7 +345,7 @@ void retiraPorLongitude(char *longitude, int t, char *arq) {
         p = p->prox;
     }
 
-    TLSE_TR_libera(listaRemocoes);
+    ///TLSE_TR_libera(listaRemocoes);
     printf("Remoção concluída para imóveis com longitude %s.\n", longitude);
 }
 
@@ -388,13 +369,9 @@ void retiraPorBairro(char *bairro, int t, char *arq) {
     }
 
     TLSE_TR *p = listaRemocoes;
-    long int idaux;
-    char tmp[20];
     while (p) {
         printf("Removendo imóvel ID: %ld\n", p->info->id);
-        idaux = p->info->id;
-        strcpy(arq, remocao(arq, idaux, t));
-        TABM_imprime(&arq, t);
+        strcpy(arq, remocao(arq, p->info->id, t));
         p = p->prox;
     }
 
@@ -730,4 +707,34 @@ void procuraaluga (int t,char *arq){
         y = y->prox;
     }
     printf("\n\to imovel alugando mais barato eh o de id %ld, localizado no bairro %s, rua %s e numero %d, e vale %.2f reais, com um metro quadrado no valor de %.2f.",z->info->id,z->info->bairro,z->info->rua,z->info->numero,z->info->preco_total, z->info->preco_m2);
+}
+
+void retiraPorMetragem(int metragem, int t, char *arq) {
+    TABM *x = arq2TABM(arq, t);
+    TLSE_TR *listaRemocoes = NULL;
+
+    while (!x->folha) {
+        x = arq2TABM(x->filhos[0], t);
+    }
+
+    while (x) {
+        for (int i = 0; i < x->nchaves; i++) {
+            if ((int)(x->chaves[i].preco_total / x->chaves[i].preco_m2) == metragem) {
+                printf("Marcando para remoção: imóvel ID: %ld, Metragem: %.2f\n", x->chaves[i].id, x->chaves[i].preco_m2);
+                listaRemocoes = TLSE_TR_insere(listaRemocoes, &x->chaves[i]);
+            }
+        }
+        x = arq2TABM(x->prox, t);
+    }
+
+    TLSE_TR *p = listaRemocoes;
+    char tmp[20];
+    while (p) {
+        printf("Removendo imóvel ID: %ld\n", p->info->id);
+        strcpy(arq, remocao(arq, p->info->id, t));
+        p = p->prox;
+    }
+
+    TLSE_TR_libera(listaRemocoes);
+    printf("Remoção concluída para imóveis com metragem igual a %d.\n", metragem);
 }

@@ -8,7 +8,7 @@ void limpar_buffer(){
 
 int main(void){
     TR aux, aux2;
-    int t, opcao, op2;
+    int t, opcao, op2, op3;
     long int id;
     int cont = 1;
     char * raiz = (char*)malloc(sizeof(char)*30);
@@ -17,9 +17,8 @@ int main(void){
     if(t < 2) t = 2;
     le_dados("entrada.txt", &raiz, t, &cont);
     TABM_imprime(&raiz, t);
-    //contachaves(raiz, t);
     do{
-        printf("\n\t0 - Sair\n\t1 - Retornar imoveis\n\t2 - Retirar imoveis\n\t3 - Inserir imoveis\n\t4 - Alterar imoveis\n\t5 - Imprimir informacoes de um ID\n\t6 - Retornar infomacoes adicionais\n");
+        printf("\n\t0 - Sair\n\t1 - Retornar imoveis\n\t2 - Retirar imoveis\n\t3 - Inserir imoveis\n\t4 - Alterar imoveis\n\t5 - Imprimir informacoes de um ID\n\t6 - Retornar infomacoes adicionais\n\t7 - Imprimir arvore");
         printf("\n");
         printf("\tDigite uma das opcoes acima: ");
         scanf("%d", &opcao);
@@ -102,9 +101,9 @@ int main(void){
 
                 }
                 else if (op2==4){
-                    double m2;
+                    int m2;
                     printf("\n\tdigite a metragem: ");
-                    scanf("%lf",&m2);
+                    scanf("%d",&m2);
                     retornaM2(m2,t,raiz);
                 }
                 break;
@@ -122,44 +121,49 @@ int main(void){
                     printf("\n\tdigite o valor maximo:");
                     scanf("%d",&vma);
                     removeImoveisPorPreco(vmi,vma,t,raiz);
+                    TABM_imprime(&raiz, t);
                 }
                 else if (op2==2){
                     printf("\n\t0 - Voltar\n\t1 - CEP\n\t2 - latitude\n\t3 - longitude\n\t4 - rua\n\t 5 - bairro");
                     printf("\n");
                     printf("\tDigite uma das opcoes acima: ");
-                    scanf("%d", &op2);
+                    scanf("%d", &op3);
                     printf("\n");
-                    if (op2==1){
+                    if (op3==1){
                         int cep;
                         printf("\n\tdigite o cep: ");
                         scanf("%d",&cep);
                         retiraPorCEP(cep,t,raiz);
+                        TABM_imprime(&raiz, t);
                     }
-                    else if (op2==2){
+                    else if (op3==2){
                         char lat[20];
                         printf("\n\tdigite a latitude:");
                         limpar_buffer();
                         scanf("%s",lat);
                         limpar_buffer();
                         retiraPorLatitude(lat,t,raiz);
+                        TABM_imprime(&raiz, t);
                     }
-                    else if(op2==3){
+                    else if(op3==3){
                         char lo[20];
                         printf("\n\tdigite a longitude:");
                         limpar_buffer();
                         scanf("%s",lo);
                         limpar_buffer();
                         retiraPorLongitude(lo,t,raiz);
+                        TABM_imprime(&raiz, t);
                     }
-                    else if (op2==4){
+                    else if (op3==4){
                         char rua[20];
                         printf("\n\tdigite a rua:");
                         limpar_buffer();
                         scanf("%50[^\n]", rua);
                         limpar_buffer();
                         retiraPorRua(rua,t,raiz);
+                        TABM_imprime(&raiz, t);
                     }
-                    else if (op2==5){
+                    else if (op3==5){
                         char ba[20];
                         printf("\n\tdigite o bairro:");
                         limpar_buffer();
@@ -167,21 +171,72 @@ int main(void){
                         limpar_buffer();
                         printf("%s", ba);
                         retiraPorBairro(ba,t,raiz);
+                        TABM_imprime(&raiz, t);
                     }
                     else continue;
                 }
                 else if (op2==3){
-                    printf("\n\t0 - Voltar\n\t1 - Apartamentos\n\t2 - Casas\n\t3 - Terrenos Residenciais\n\t4 - Comércios\n\t 5 - Escritórios\n\t 6 - Salas Comerciais\n\t 7 - Condomínios\n\t 8 - Empreendimentos\n\t 9 - Coberturas\n\t 10 - Casas de Vilarejo\n\t 11 - Depósitos\n\t 12 - Lotes");
+                    printf("\n\t0 - Voltar\n\t1 - Apartamentos\n\t2 - Casas\n\t3 - Terrenos Residenciais\n\t4 - Salas Comerciais\n\t 5 - Escritórios\n\t 6 - Comércios\n\t 7 - Condomínios\n\t 8 - Empreendimentos\n\t 9 - Coberturas\n\t 10 - Casas de Vilarejo\n\t 11 - Depósitos\n\t 12 - Lotes");
                     printf("\n");
                     printf("\tDigite uma das opcoes acima: ");
-                    scanf("%d", &op2);
+                    scanf("%d", &op3);
                     printf("\n");
+                    if(op3 == 1){
+                        retiraPorTipo("APARTMENT", t, raiz);
+                        TABM_imprime(&raiz, t);
+                    }
+                    else if(op3 == 2){
+                        retiraPorTipo("HOME", t, raiz);
+                        TABM_imprime(&raiz, t);
+                    }
+                    else if(op3 == 3){
+                        retiraPorTipo("RESIDENTIAL_ALLOTMENT_LAND", t, raiz);
+                        TABM_imprime(&raiz, t);
+                    }
+                    else if(op3 == 4){
+                        retiraPorTipo("COMMERCIAL_PROPERTY", t, raiz);
+                        TABM_imprime(&raiz, t);
+                    }
+                    else if(op3 == 5){
+                        retiraPorTipo("OFFICE", t, raiz);
+                        TABM_imprime(&raiz, t);
+                    }
+                    else if(op3 == 6){
+                        retiraPorTipo("COMMERCIAL_BUILDING", t, raiz);
+                        TABM_imprime(&raiz, t);
+                    }
+                    else if(op3 == 7){
+                        retiraPorTipo("CONDOMINIUM", t, raiz);
+                        TABM_imprime(&raiz, t);
+                    }
+                    else if(op3 == 8){
+                        retiraPorTipo("BUSINESS", t, raiz);
+                        TABM_imprime(&raiz, t);
+                    }
+                    else if(op3 == 9){
+                        retiraPorTipo("PENTHOUSE", t, raiz);
+                        TABM_imprime(&raiz, t);
+                    }
+                    else if(op3 == 10){
+                        retiraPorTipo("VILLAGE_HOUSE", t, raiz);
+                        TABM_imprime(&raiz, t);
+                    }
+                    else if(op3 == 11){
+                        retiraPorTipo("SHED_DEPOSIT_WAREHOUSE", t, raiz);
+                        TABM_imprime(&raiz, t);
+                    }
+                    else if(op3 == 12){
+                        retiraPorTipo("ALLOTMENT_LAND", t, raiz);
+                        TABM_imprime(&raiz, t);
+                    }
+                    else continue;
                 }
                 else if (op2==4){
-                    double m2;
+                    int m2;
                     printf("\n\tdigite a metragem: ");
-                    scanf("%lf",&m2);
-
+                    scanf("%d",&m2);
+                    retiraPorMetragem(m2, t, raiz);
+                    TABM_imprime(&raiz, t);
                 }
                 break;
 
@@ -239,6 +294,8 @@ int main(void){
             case 4:
                 printf("\n\tdigite o id do imovel que deseja alterar:");
                 scanf("%ld",&id);
+                TABM_imprime_por_ID(raiz, id, t);
+                printf("\n\n");
                 printf("\n\t0 - voltar\n\t1 - preco total\n\t2 - preco por m2\n\t3 - descricao\n");
                 printf("\n");
                 printf("\tDigite o que deseja alterar: ");
@@ -247,11 +304,13 @@ int main(void){
                     printf("\n\tdigite o novo preco total:");
                     scanf("%lf",&aux2.preco_total);
                     alteraPrecoTotal(id,aux2.preco_total,t,raiz);
+                    TABM_imprime_por_ID(raiz, id, t);
                 }
                 else if (op2 == 2){
                     printf("\n\tdigite o novo preco por m2:");
                     scanf("%lf",&aux2.preco_m2);
                     alteraPrecoPorM2(id,aux2.preco_m2,t,raiz);
+                    TABM_imprime_por_ID(raiz, id, t);
                 }
                 else if (op2 == 3){
                     limpar_buffer();
@@ -260,6 +319,7 @@ int main(void){
                     scanf("%2500[^\n]",aux2.descricao);
                     limpar_buffer();
                     alteraDescricao(id,aux2.descricao,t,raiz);
+                    TABM_imprime_por_ID(raiz, id, t);
                 }
                 break;
 
@@ -280,6 +340,10 @@ int main(void){
                 procurametro(id,t,raiz);
                 procurap24(id,t,raiz);
                 procurasuite(id,t,raiz);
+                break;
+
+            case 7:
+                TABM_imprime(&raiz, t);
                 break;
             default:
                 if(opcao != 0) printf("Opcao invalida!!!\n");

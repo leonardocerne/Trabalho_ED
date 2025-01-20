@@ -22,7 +22,7 @@ void retornaBAIRRO(char *bairro, int t, char *arq);
 void retornaTIPO(int tipo, int t, char **arq);
 
 // Retorna todas residências com mesma quantidade de metros quadrados
-void retornaM2(double m2, int t, char *arq);
+void retornaM2(int m2, int t, char *arq);
 
 // Retorna todas residências na mesma rua
 void retornaRUA(char *rua, int t, char *arq);
@@ -74,3 +74,5 @@ void procuravenda (int t,char *arq);
 void procuraaluga (int t,char *arq);
 
 void alteraPrecoTotal(long int id, double novoPrecoTotal, int t, char *arq);
+
+void retiraPorMetragem(int metragem, int t, char *arq);
